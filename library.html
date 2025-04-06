@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Library</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.css" />
+  <style>
+    .modal-viewer {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content-viewer {
+      background: white;
+      padding: 1rem;
+      width: 80%;
+      height: 90%;
+      border-radius: 10px;
+      position: relative;
+    }
+    .modal-content-viewer iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .close-modal {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: black;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo"></div>
+    <ul class="menu">
+      <li><a href="index.html"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
+      <li class="active"><a href="library.html"><i class="fas fa-folder"></i><span>Library</span></a></li>
+      <li><a href="profile.html"><i class="fas fa-user"></i><span>Profile</span></a></li>
+      <li><a href="store.html"><i class="fas fa-store"></i><span>Store</span></a></li>
+      <li><a href="settings.html"><i class="fas fa-gear"></i><span>Settings</span></a></li>
+      <li class="logout"><a href="#"><i class="fas fa-sign-out"></i><span>Logout</span></a></li>
+    </ul>
+  </div>
+
+  <div class="main--content">
+    <div class="header--wrapper">
+      <div class="header--title"><h1>Library</h1></div>
+      <div class="header--subtitle"><h2>All Your PDFs</h2></div>
+    </div>
+
+    <div class="library-container" id="libraryContainer">
+      <!-- Flashcard PDFs will load here -->
+    </div>
+  </div>
+
+  <!-- PDF Preview Modal -->
+  <div class="modal-viewer" id="pdfModal">
+    <div class="modal-content-viewer">
+      <span class="close-modal" id="closeModal">&times;</span>
+      <iframe id="pdfFrame" src=""></iframe>
+    </div>
+  </div>
+
+  <script>
+    const container = document.getElementById('libraryContainer');
+    const flashcardSets = JSON.parse(localStorage.getItem("flashcards")) || [];
+
+    const pdfModal = document.getElementById('pdfModal');
+    const pdfFrame = document.getElementById('pdfFrame');
+    const closeModal = document.getElementById('closeModal');
+
+    if (flashcardSets.length === 0) {
+      container.innerHTML += "<p>No flashcard PDFs saved yet.</p>";
+    }
+
+    flashcardSets.forEach(set => {
+      const card = document.createElement("div");
+      card.className = "library-card";
+
+      card.innerHTML = `
+        <i class="fas fa-file-pdf fa-2x"></i>
+        <h3>${set.title}</h3>
+        <button onclick="viewSet('${set.pdfUrl}')">View</button>
+        <button style="margin-top: 0.5rem; background-color: #f44336;" onclick="deleteSet(${set.id})">Delete</button>
+      `;
+
+      container.appendChild(card);
+    });
+
+    function viewSet(pdfUrl) {
+      pdfFrame.src = pdfUrl;
+      pdfModal.style.display = 'flex';
+    }
+
+    function deleteSet(id) {
+      const updated = flashcardSets.filter(set => set.id !== id);
+      localStorage.setItem("flashcards", JSON.stringify(updated));
+      location.reload();
+    }
+
+    closeModal.addEventListener('click', () => {
+      pdfModal.style.display = 'none';
+      pdfFrame.src = '';
+    });
+
+    window.addEventListener('click', (e) => {
+      if (e.target === pdfModal) {
+        pdfModal.style.display = 'none';
+        pdfFrame.src = '';
+      }
+    });
+  </script>
+</body>
+</html>
+

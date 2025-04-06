@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.css" />
+</head>
+
+<body>
+  <div class="sidebar">
+    <div class="logo"></div>
+    <ul class="menu">
+      <li>
+        <a href="index.html"><i class="fas fa-home"></i><span>Dashboard</span></a>
+      </li>
+      <li>
+        <a href="library.html"><i class="fas fa-folder"></i><span>Library</span></a>
+      </li>
+      <li>
+        <a href="profile.html"><i class="fas fa-user"></i><span>Profile</span></a>
+      </li>
+      <li>
+        <a href="store.html"><i class="fas fa-store"></i><span>Store</span></a>
+      </li>
+      <li class="active">
+        <a href="settings.html"><i class="fas fa-gear"></i><span>Settings</span></a>
+      </li>
+      <li class="logout">
+        <a href="#"><i class="fas fa-sign-out"></i><span>Logout</span></a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="main--content">
+    <div class="header--wrapper">
+      <div class="header--title">
+        <h1>Settings</h1>
+      </div>
+    </div>
+
+    <div class="card-container">
+      <div class="card-row">
+
+        <div class="card">
+          <h3>Account Settings</h3>
+          <p>Username: user123</p>
+          <p>Email: user@example.com</p>
+          <button>Change Password</button>
+          <button style="margin-top: 0.5rem; background-color: #f44336;">Delete Account</button>
+        </div>
+
+        <div class="card">
+          <h3>Customization</h3>
+          <p><label><input type="checkbox"> Enable Dark Mode</label></p>
+          <p><label><input type="checkbox"> Use Compact Layout</label></p>
+        </div>
+
+        <div class="card">
+          <h3>Notifications</h3>
+          <p><label><input type="checkbox" checked> Quiz Reminders</label></p>
+          <p><label><input type="checkbox"> Upload Confirmations</label></p>
+          <p><label><input type="checkbox" checked> Store Updates</label></p>
+        </div>
+
+        <div class="card">
+          <h3>Study Preferences</h3>
+          <label>Daily Goal (min): <input type="number" value="30"></label><br>
+          <label>Focus Subject:
+            <select>
+              <option>Biology</option>
+              <option>Art History</option>
+              <option>Math</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="card">
+          <h3>App Preferences</h3>
+          <label>Language:
+            <select>
+              <option>English</option>
+              <option>Spanish</option>
+              <option>French</option>
+            </select>
+          </label>
+          <p><label><input type="checkbox"> Set Dashboard as Homepage</label></p>
+        </div>
+
+        <div class="card">
+          <h3>Data & Storage</h3>
+          <p>Used: 32MB / 100MB</p>
+          <button>Clear Quiz Progress</button><br>
+          <button style="margin-top: 0.5rem;">Export Study Data</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo"></div>
+    <ul class="menu">
+      <li class="active"><a href="#"><i class="fas fa-home"></i><span>Dashboard</span></a></li>
+      <li><a href="library.html"><i class="fas fa-folder"></i><span>Library</span></a></li>
+      <li><a href="profile.html"><i class="fas fa-user"></i><span>Profile</span></a></li>
+      <li><a href="store.html"><i class="fas fa-store"></i><span>Store</span></a></li>
+      <li><a href="settings.html"><i class="fas fa-gear"></i><span>Settings</span></a></li>
+      <li class="logout"><a href="#"><i class="fas fa-sign-out"></i><span>Logout</span></a></li>
+    </ul>
+  </div>
+
+  <div class="main--content">
+    <div class="header--wrapper">
+      <div class="header--title"><h1>Dashboard</h1></div>
+      <div class="header--subtitle"><h2>BuddyTest</h2></div>
+    </div>
+
+    <div class="dashboard-flex">
+      <div class="dashboard-column">
+        <div class="card-container">
+          <h2>Today's Revision</h2>
+          <div class="card-row">
+            <div class="card" id="uploadCard"><h3>Upload PDF</h3></div>
+            <div class="card"><h3>Random Quiz</h3></div>
+            <a href="library.html" class="card card-link"><h3>Go to Library</h3></a>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-column">
+        <div class="card-container">
+          <h2>Weekly Report</h2>
+          <div class="card-row">
+            <div class="card"><h3>Total Study Time</h3><p>5 hrs 45 min</p></div>
+            <div class="card"><h3>Quizzes Taken</h3><p>12</p></div>
+            <div class="card"><h3>Subjects Reviewed</h3><p>Biology, Art History, Physics</p></div>
+            <div class="card"><h3>Highest Score</h3><p>92%</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-column">
+        <div class="leaderboard">
+          <h2>Top Learners</h2>
+          <ol>
+            <li>1. Alex - 920 pts</li>
+            <li>2. Jamie - 880 pts</li>
+            <li>3. Sam - 850 pts</li>
+            <li>4. Taylor - 840 pts</li>
+            <li>5. Jordan - 800 pts</li>
+            <li>6. Casey - 770 pts</li>
+            <li>7. Morgan - 750 pts</li>
+            <li>8. Drew - 740 pts</li>
+            <li>9. Riley - 730 pts</li>
+            <li>10. Quinn - 700 pts</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-row">
+      <div class="bottom-card">
+        <h2>Weekly Progress Summary</h2>
+        <p>You’ve studied 5 out of 7 days this week.</p>
+        <p>Keep up the great consistency! ⭐</p>
+      </div>
+      <div class="bottom-card">
+        <h2>Leaderboard Insights</h2>
+        <p>You are currently ranked <strong>#14</strong></p>
+        <p><em>200 pts</em> to break into the top 10.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Modal -->
+  <div class="modal" id="uploadModal">
+    <div class="modal-content">
+      <span class="close-button">&times;</span>
+      <form id="uploadForm" enctype="multipart/form-data">
+        <div class="upload-box">
+          <i class="fas fa-cloud-upload-alt fa-3x"></i>
+          <p><strong>Drag & Drop to Upload File</strong></p>
+          <p>OR</p>
+          <label class="upload-btn">
+            Browse File
+            <input type="file" name="file" id="pdfFile" required hidden />
+          </label>
+          <br /><br />
+          <button type="submit" class="upload-btn">Generate Flashcards</button>
+          <p id="uploadStatus" style="margin-top: 1rem; color: white;"></p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Upload & Save Logic -->
+  <script>
+    const uploadCard = document.getElementById('uploadCard');
+    const modal = document.getElementById('uploadModal');
+    const closeBtn = document.querySelector('.close-button');
+    const form = document.getElementById('uploadForm');
+    const status = document.getElementById('uploadStatus');
+
+    uploadCard.addEventListener('click', () => {
+      modal.style.display = 'block';
+    });
+
+    closeBtn.addEventListener('click', () => {
+      modal.style.display = 'none';
+      status.textContent = '';
+    });
+
+    window.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.style.display = 'none';
+        status.textContent = '';
+      }
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const fileInput = document.getElementById('pdfFile');
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+      const filename = fileInput.files[0]?.name || 'Untitled';
+
+      status.textContent = 'Uploading and generating flashcards...';
+
+      try {
+        const response = await fetch('http://localhost:5000/upload', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) throw new Error('Upload failed.');
+        const data = await response.json();
+        const flashcards = data.flashcards;
+
+        // === PDF Generation with Split Sections ===
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(12);
+
+        let marginTop = 20;
+        let lineHeight = 10;
+        let maxY = 270;
+
+        // Page 1: Questions
+        doc.text(`Flashcards from ${filename}`, 10, 10);
+        doc.text("Questions:", 10, marginTop);
+        let y = marginTop + 10;
+
+        flashcards.forEach((card, index) => {
+          const questionText = `Q${index + 1}: ${card.question}`;
+          const lines = doc.splitTextToSize(questionText, 180);
+          lines.forEach(line => {
+            if (y > maxY) {
+              doc.addPage();
+              y = 20;
+            }
+            doc.text(line, 10, y);
+            y += lineHeight;
+          });
+        });
+
+        // Page 2: Answers
+        doc.addPage();
+        doc.text("Answers:", 10, 20);
+        y = 30;
+
+        flashcards.forEach((card, index) => {
+          const answerText = `A${index + 1}: ${card.answer}`;
+          const lines = doc.splitTextToSize(answerText, 180);
+          lines.forEach(line => {
+            if (y > maxY) {
+              doc.addPage();
+              y = 20;
+            }
+            doc.text(line, 10, y);
+            y += lineHeight;
+          });
+        });
+
+        // Save as base64 data URI
+        const pdfBase64 = doc.output("datauristring");
+        const saved = JSON.parse(localStorage.getItem("flashcards")) || [];
+        saved.push({
+          id: Date.now(),
+          title: filename,
+          pdfUrl: pdfBase64
+        });
+        localStorage.setItem("flashcards", JSON.stringify(saved));
+
+        status.textContent = 'Flashcards saved to Library!';
+        setTimeout(() => {
+          window.location.href = 'library.html';
+        }, 1500);
+      } catch (err) {
+        console.error(err);
+        status.textContent = 'Something went wrong. Try again.';
+      }
+    });
+  </script>
+</body>
+</html>
+
+
